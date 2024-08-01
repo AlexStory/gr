@@ -1,0 +1,7 @@
+[commands]
+hello = "echo 'Hello, world!'"
+list-cmds = "go run . list"
+
+[commands.other]
+command = "echo"
+args = ["hello, world"]
