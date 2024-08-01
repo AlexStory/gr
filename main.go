@@ -13,9 +13,26 @@ type options struct {
 	logs       string
 	command    string
 	configFile string
+	writer     io.Writer
 }
 
 func main() {
+	opts := parseFlags()
+	opts.writer = os.Stdout
+
+	switch opts.command {
+	case "list":
+		listCmd(opts)
+	case "", "help":
+		helpCmd()
+	case "init":
+		initCmd(opts)
+	default:
+		runCmd(opts)
+	}
+}
+
+func parseFlags() *options {
 	var quiet bool
 	var configFile string
 	var logs string
@@ -36,17 +53,7 @@ func main() {
 		command:    cmd,
 		configFile: configFile,
 	}
-
-	switch cmd {
-	case "list":
-		listCmd(opts)
-	case "", "help":
-		helpCmd()
-	case "init":
-		initCmd(opts)
-	default:
-		runCmd(opts)
-	}
+	return opts
 }
 
 func helpCmd() {
@@ -64,10 +71,10 @@ func helpCmd() {
 func listCmd(opts *options) {
 	config := loadConfig(opts.configFile)
 
-	fmt.Println("Available commands:")
+	fmt.Fprintln(opts.writer, "Available commands:")
 
 	for _, task := range config.Commands {
-		fmt.Printf(" - %s\n", task.Name)
+		fmt.Fprintf(opts.writer, " - %s\n", task.Name)
 	}
 }
 

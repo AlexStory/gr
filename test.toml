@@ -1,0 +1,3 @@
+[commands]
+hello = "echo hello, world"
+goodbye = "echo goodbye, world"
