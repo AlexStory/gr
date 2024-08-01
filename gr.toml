@@ -1,6 +1,7 @@
 [commands]
 hello = "echo 'Hello, world!'"
 list-cmds = "go run . list"
+build-win = "go build -o gr.exe ."
 
 [commands.other]
 command = "echo"

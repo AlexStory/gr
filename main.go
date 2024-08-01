@@ -67,7 +67,7 @@ func runCmd(cmd string, opts options) {
 func runTask(task Command, opts options) {
 	cmd := exec.Command(task.Command, task.Arguments...)
 	if !opts.quiet {
-		fmt.Printf("Running %s %v...\n\n", task.Command, strings.Join(task.Arguments, ""))
+		fmt.Printf("Running %s %v...\n\n", task.Command, strings.Join(task.Arguments, " "))
 		cmd.Stdout = os.Stdout
 	} else {
 		cmd.Stdout = nil
