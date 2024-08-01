@@ -10,9 +10,14 @@ build-win = "go build -o gr.exe ."
 combo = ["hello", "goodbye"]
 inf = ["inf"]
 
+[commands.all]
+command = "ls"
+working_directory = "./spoons"
+
 [commands.other]
 command = "echo"
-args = ["hello, world"]
+args = ["hello, $TARGET"]
+environment = { TARGET="world" }
 
 [commands.mombo]
 steps = ["hello", "goodbye"]

@@ -98,6 +98,14 @@ func runTask(task Command, config *Config, opts *options) {
 	cmd.Env = append(cmd.Env, formatEnv(task.Environment)...)
 	var outputWriter io.Writer
 
+	if config.WorkingDirectory != "" {
+		cmd.Dir = config.WorkingDirectory
+	}
+
+	if task.WorkingDirectory != "" {
+		cmd.Dir = task.WorkingDirectory
+	}
+
 	if opts.logs != "" {
 		file, err := os.OpenFile(opts.logs, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {

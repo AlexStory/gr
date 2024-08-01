@@ -12,16 +12,18 @@ import (
 var re = regexp.MustCompile(`'[^']*'|"[^"]*"|\S+`)
 
 type Command struct {
-	Name        string
-	Command     string
-	Arguments   []string
-	Steps       []string
-	Environment map[string]string
+	Name             string
+	Command          string
+	Arguments        []string
+	Steps            []string
+	Environment      map[string]string
+	WorkingDirectory string
 }
 
 type Config struct {
-	Commands    []Command
-	Environment map[string]string
+	Commands         []Command
+	Environment      map[string]string
+	WorkingDirectory string
 }
 
 func parseConfig(data map[string]interface{}) *Config {
@@ -78,6 +80,10 @@ func parseConfig(data map[string]interface{}) *Config {
 					}
 				}
 
+				if wd, ok := cmd["working_directory"].(string); ok {
+					command.WorkingDirectory = wd
+				}
+
 				config.Commands = append(config.Commands, command)
 			}
 		}
@@ -89,6 +95,10 @@ func parseConfig(data map[string]interface{}) *Config {
 				config.Environment[key] = valueStr
 			}
 		}
+	}
+
+	if wd, ok := data["working_directory"].(string); ok {
+		config.WorkingDirectory = wd
 	}
 
 	return config
