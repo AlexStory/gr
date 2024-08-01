@@ -80,6 +80,6 @@ The Cli takes the following form. `gr [options] <command>`, with the singular co
 
 ### Options
 
-`-f, --file` Specifile a filename other than gr.toml for the config
-`--logs <file>` Print output to the log file.
-`-q, --quiet` Silences all output from the terminal.
+- `-f, --file` Specifile a filename other than gr.toml for the config
+- `--logs <file>` Print output to the log file.
+- `-q, --quiet` Silences all output from the terminal.
