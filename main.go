@@ -42,6 +42,8 @@ func main() {
 		listCmd(opts)
 	case "", "help":
 		helpCmd()
+	case "init":
+		initCmd(opts)
 	default:
 		runCmd(opts)
 	}
@@ -51,6 +53,7 @@ func helpCmd() {
 	fmt.Println("Usage: gr [options] <command>")
 	fmt.Println("Commands:")
 	fmt.Println("  help  prints this message")
+	fmt.Println("  init  creates a new config file")
 	fmt.Println("  list  lists all available commans")
 	fmt.Println("\nOptions:")
 	fmt.Println("  -f, --file <file> specify the config file (default: gr.toml)")
@@ -64,6 +67,25 @@ func listCmd(opts *options) {
 	for _, task := range config.Commands {
 		fmt.Println(task.Name)
 	}
+}
+
+func initCmd(opts *options) {
+	if _, err := os.Stat(opts.configFile); err == nil {
+		fmt.Println("Config file already exists")
+		return
+	}
+
+	file, err := os.Create(opts.configFile)
+	if err != nil {
+		fmt.Println("Failed to create config file:", err)
+		return
+	}
+	defer file.Close()
+
+	defaultConfig := `[commands]
+hello = "echo Hello, World!"`
+
+	file.WriteString(defaultConfig)
 }
 
 func runCmd(opts *options) {
