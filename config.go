@@ -55,8 +55,8 @@ func parseConfig(data map[string]interface{}) Config {
 	return config
 }
 
-func loadConfig() Config {
-	configPath, err := findConfigFile()
+func loadConfig(filename string) Config {
+	configPath, err := findConfigFile(filename)
 	if err != nil {
 		fmt.Println("config file not found")
 		os.Exit(1)
@@ -71,14 +71,14 @@ func loadConfig() Config {
 	return parseConfig(data)
 }
 
-func findConfigFile() (string, error) {
+func findConfigFile(filename string) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
 	for {
-		configPath := filepath.Join(dir, "gr.toml")
+		configPath := filepath.Join(dir, filename)
 		if _, err := os.Stat(configPath); err == nil {
 			return configPath, nil
 		}
