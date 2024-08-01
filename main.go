@@ -80,6 +80,18 @@ func runCmd(opts *options) {
 }
 
 func runTask(task Command, opts *options) {
+	if task.Steps != nil {
+		for _, step := range task.Steps {
+			o := &options{
+				command:    step,
+				quiet:      opts.quiet,
+				logs:       opts.logs,
+				configFile: opts.configFile,
+			}
+			runCmd(o)
+		}
+		return
+	}
 	cmd := exec.Command(task.Command, task.Arguments...)
 	var outputWriter io.Writer
 

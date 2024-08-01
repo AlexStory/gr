@@ -15,6 +15,7 @@ type Command struct {
 	Name      string
 	Command   string
 	Arguments []string
+	Steps     []string
 }
 
 type Config struct {
@@ -35,6 +36,15 @@ func parseConfig(data map[string]interface{}) Config {
 					Command:   command,
 					Arguments: args,
 				})
+			case []interface{}:
+				command := Command{Name: name}
+				for _, step := range cmd {
+					if stepStr, ok := step.(string); ok {
+						command.Steps = append(command.Steps, stepStr)
+					}
+				}
+				config.Commands = append(config.Commands, command)
+
 			case map[string]interface{}:
 				command := Command{Name: name}
 				if cmdStr, ok := cmd["command"].(string); ok {
