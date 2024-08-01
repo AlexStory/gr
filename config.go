@@ -12,18 +12,22 @@ import (
 var re = regexp.MustCompile(`'[^']*'|"[^"]*"|\S+`)
 
 type Command struct {
-	Name      string
-	Command   string
-	Arguments []string
-	Steps     []string
+	Name        string
+	Command     string
+	Arguments   []string
+	Steps       []string
+	Environment map[string]string
 }
 
 type Config struct {
-	Commands []Command
+	Commands    []Command
+	Environment map[string]string
 }
 
-func parseConfig(data map[string]interface{}) Config {
-	var config Config
+func parseConfig(data map[string]interface{}) *Config {
+	config := &Config{
+		Environment: make(map[string]string),
+	}
 
 	if commands, ok := data["commands"].(map[string]interface{}); ok {
 		for name, cmd := range commands {
@@ -57,7 +61,32 @@ func parseConfig(data map[string]interface{}) Config {
 						}
 					}
 				}
+				if steps, ok := cmd["steps"].([]interface{}); ok {
+					for _, step := range steps {
+						if stepStr, ok := step.(string); ok {
+							command.Steps = append(command.Steps, stepStr)
+						}
+					}
+				}
+
+				if env, ok := cmd["environment"].(map[string]interface{}); ok {
+					command.Environment = make(map[string]string)
+					for key, value := range env {
+						if valueStr, ok := value.(string); ok {
+							command.Environment[key] = valueStr
+						}
+					}
+				}
+
 				config.Commands = append(config.Commands, command)
+			}
+		}
+	}
+
+	if env, ok := data["environment"].(map[string]interface{}); ok {
+		for key, value := range env {
+			if valueStr, ok := value.(string); ok {
+				config.Environment[key] = valueStr
 			}
 		}
 	}
@@ -65,7 +94,7 @@ func parseConfig(data map[string]interface{}) Config {
 	return config
 }
 
-func loadConfig(filename string) Config {
+func loadConfig(filename string) *Config {
 	configPath, err := findConfigFile(filename)
 	if err != nil {
 		fmt.Println("config file not found")

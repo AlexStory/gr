@@ -71,7 +71,7 @@ func runCmd(opts *options) {
 
 	for _, task := range config.Commands {
 		if task.Name == opts.command {
-			runTask(task, opts)
+			runTask(task, config, opts)
 			return
 		}
 	}
@@ -79,7 +79,7 @@ func runCmd(opts *options) {
 	fmt.Printf("Command %q not found\n", opts.command)
 }
 
-func runTask(task Command, opts *options) {
+func runTask(task Command, config *Config, opts *options) {
 	if task.Steps != nil {
 		for _, step := range task.Steps {
 			o := &options{
@@ -92,7 +92,10 @@ func runTask(task Command, opts *options) {
 		}
 		return
 	}
+
 	cmd := exec.Command(task.Command, task.Arguments...)
+	cmd.Env = append(os.Environ(), formatEnv(config.Environment)...)
+	cmd.Env = append(cmd.Env, formatEnv(task.Environment)...)
 	var outputWriter io.Writer
 
 	if opts.logs != "" {
@@ -119,4 +122,12 @@ func runTask(task Command, opts *options) {
 	cmd.Stdout = outputWriter
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func formatEnv(env map[string]string) []string {
+	var formatted []string
+	for key, value := range env {
+		formatted = append(formatted, fmt.Sprintf("%s=%s", key, value))
+	}
+	return formatted
 }

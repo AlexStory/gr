@@ -1,3 +1,7 @@
+[environment]
+env = "dev"
+version = "0.1.0"
+
 [commands]
 hello = "echo 'Hello, world!'"
 goodbye = "echo 'Goodbye, world!'"
@@ -9,3 +13,6 @@ inf = ["inf"]
 [commands.other]
 command = "echo"
 args = ["hello, world"]
+
+[commands.mombo]
+steps = ["hello", "goodbye"]
