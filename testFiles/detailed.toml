@@ -1,0 +1,3 @@
+[commands.detailed]
+command = "echo"
+args = ["hello, world"]

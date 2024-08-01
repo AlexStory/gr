@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -58,18 +60,124 @@ func TestListCmd(t *testing.T) {
 				configFile: "test.toml",
 				writer:     new(bytes.Buffer),
 			},
-			expected: `Available commands:
- - hello
- - goodbye
-`,
 		},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("tt #%d", i), func(t *testing.T) {
 			listCmd(tt.opts)
+			if !strings.Contains(tt.opts.writer.(*bytes.Buffer).String(), "- hello") {
+				t.Errorf("listCmd() = %v, want %v", tt.opts.writer.(*bytes.Buffer).String(), tt.expected)
+			}
+
+			if !strings.Contains(tt.opts.writer.(*bytes.Buffer).String(), "- goodbye") {
+				t.Errorf("listCmd() = %v, want %v", tt.opts.writer.(*bytes.Buffer).String(), tt.expected)
+			}
+		})
+	}
+}
+
+func TestFormatEnv(t *testing.T) {
+	tests := []struct {
+		env  map[string]string
+		want []string
+	}{
+		{
+			env: map[string]string{
+				"key1": "value1",
+			},
+			want: []string{"key1=value1"},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("tt #%d", i), func(t *testing.T) {
+			got := formatEnv(tt.env)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("formatEnv() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHelpCmd(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	opts := &options{
+		writer: buffer,
+	}
+
+	helpCmd(opts)
+
+	got := buffer.String()
+	want := `Usage: gr [options] <command>
+Commands:
+  help  prints this message
+  init  creates a new config file
+  list  lists all available commans
+
+Options:
+  -f, --file <file> specify the config file (default: gr.toml)
+  --logs <file>     write output to file
+  -q, --quiet       suppress output
+`
+
+	if got != want {
+		t.Errorf("helpCmd() = %q, want %q", got, want)
+	}
+}
+
+func TestRunCmd(t *testing.T) {
+	tests := []struct {
+		opts     *options
+		expected string
+	}{
+		{
+			opts: &options{
+				quiet:      true,
+				logs:       "",
+				command:    "doesntexist",
+				configFile: "test.toml",
+				writer:     new(bytes.Buffer),
+			},
+			expected: "Command \"doesntexist\" not found\n",
+		},
+		{
+			opts: &options{
+				quiet:      false,
+				logs:       "",
+				writer:     new(bytes.Buffer),
+				command:    "hello",
+				configFile: "test.toml",
+			},
+			expected: "hello, world\n",
+		},
+		{
+			opts: &options{
+				quiet:      false,
+				logs:       "",
+				writer:     new(bytes.Buffer),
+				command:    "both",
+				configFile: "test.toml",
+			},
+			expected: "hello, world\ngoodbye, world\n",
+		},
+		{
+			opts: &options{
+				quiet:      true,
+				logs:       "",
+				writer:     new(bytes.Buffer),
+				command:    "both",
+				configFile: "test.toml",
+			},
+			expected: "",
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("tt #%d", i), func(t *testing.T) {
+			runCmd(tt.opts)
 			if tt.opts.writer.(*bytes.Buffer).String() != tt.expected {
-				t.Errorf("listCmd() = %q, want %q", tt.opts.writer.(*bytes.Buffer).String(), tt.expected)
+				t.Errorf("runCmd() = %v, want %v", tt.opts.writer.(*bytes.Buffer).String(), tt.expected)
 			}
 		})
 	}

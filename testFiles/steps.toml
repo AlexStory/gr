@@ -1,0 +1,4 @@
+[commands]
+hello = "echo Hello, world!"
+goodbye = "echo Goodbye, world!"
+both = ["hello", "goodbye"]

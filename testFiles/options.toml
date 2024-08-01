@@ -1,0 +1,5 @@
+[commands.detailed]
+command = "echo"
+args = ["hello, world"]
+environment = { FOO = "bar" }
+working_directory = "./out"

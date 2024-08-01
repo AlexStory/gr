@@ -24,7 +24,7 @@ func main() {
 	case "list":
 		listCmd(opts)
 	case "", "help":
-		helpCmd()
+		helpCmd(opts)
 	case "init":
 		initCmd(opts)
 	default:
@@ -43,8 +43,6 @@ func parseFlags() *options {
 	flag.StringVar(&configFile, "f", "gr.toml", "config file")
 	flag.StringVar(&configFile, "file", "gr.toml", "config file")
 
-	flag.Usage = helpCmd
-
 	flag.Parse()
 	cmd := flag.Arg(0)
 	opts := &options{
@@ -53,19 +51,20 @@ func parseFlags() *options {
 		command:    cmd,
 		configFile: configFile,
 	}
+	flag.Usage = func() { helpCmd(opts) }
 	return opts
 }
 
-func helpCmd() {
-	fmt.Println("Usage: gr [options] <command>")
-	fmt.Println("Commands:")
-	fmt.Println("  help  prints this message")
-	fmt.Println("  init  creates a new config file")
-	fmt.Println("  list  lists all available commans")
-	fmt.Println("\nOptions:")
-	fmt.Println("  -f, --file <file> specify the config file (default: gr.toml)")
-	fmt.Println("  --logs <file>     write output to file")
-	fmt.Println("  -q, --quiet       suppress output")
+func helpCmd(opts *options) {
+	fmt.Fprintln(opts.writer, "Usage: gr [options] <command>")
+	fmt.Fprintln(opts.writer, "Commands:")
+	fmt.Fprintln(opts.writer, "  help  prints this message")
+	fmt.Fprintln(opts.writer, "  init  creates a new config file")
+	fmt.Fprintln(opts.writer, "  list  lists all available commans")
+	fmt.Fprintln(opts.writer, "\nOptions:")
+	fmt.Fprintln(opts.writer, "  -f, --file <file> specify the config file (default: gr.toml)")
+	fmt.Fprintln(opts.writer, "  --logs <file>     write output to file")
+	fmt.Fprintln(opts.writer, "  -q, --quiet       suppress output")
 }
 
 func listCmd(opts *options) {
@@ -107,7 +106,7 @@ func runCmd(opts *options) {
 		}
 	}
 
-	fmt.Printf("Command %q not found\n", opts.command)
+	fmt.Fprintf(opts.writer, "Command %q not found\n", opts.command)
 }
 
 func runTask(task Command, config *Config, opts *options) {
@@ -118,6 +117,7 @@ func runTask(task Command, config *Config, opts *options) {
 				quiet:      opts.quiet,
 				logs:       opts.logs,
 				configFile: opts.configFile,
+				writer:     opts.writer,
 			}
 			runCmd(o)
 		}
@@ -148,13 +148,13 @@ func runTask(task Command, config *Config, opts *options) {
 		if opts.quiet {
 			outputWriter = file
 		} else {
-			outputWriter = io.MultiWriter(file, os.Stdout)
+			outputWriter = io.MultiWriter(file, opts.writer)
 		}
 	} else {
 		if opts.quiet {
 			outputWriter = io.Discard
 		} else {
-			outputWriter = os.Stdout
+			outputWriter = opts.writer
 		}
 	}
 

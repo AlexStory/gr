@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>gr: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/alexstory/gr/config.go (80.0%)</option>
+				
+				<option value="file1">github.com/alexstory/gr/main.go (65.9%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "fmt"
+        "os"
+        "path/filepath"
+        "regexp"
+
+        "github.com/BurntSushi/toml"
+)
+
+var re = regexp.MustCompile(`'[^']*'|"[^"]*"|\S+`)
+
+type Command struct {
+        Name             string
+        Command          string
+        Arguments        []string
+        Steps            []string
+        Environment      map[string]string
+        WorkingDirectory string
+}
+
+type Config struct {
+        Commands         []Command
+        Environment      map[string]string
+        WorkingDirectory string
+}
+
+func parseConfig(data map[string]interface{}) *Config <span class="cov8" title="1">{
+        config := &amp;Config{
+                Environment: make(map[string]string),
+        }
+
+        if commands, ok := data["commands"].(map[string]interface{}); ok </span><span class="cov8" title="1">{
+                for name, cmd := range commands </span><span class="cov8" title="1">{
+                        switch cmd := cmd.(type) </span>{
+                        case string:<span class="cov8" title="1">
+                                command := splitCommand(cmd)[0]
+                                args := splitCommand(cmd)[1:]
+                                config.Commands = append(config.Commands, Command{
+                                        Name:      name,
+                                        Command:   command,
+                                        Arguments: args,
+                                })</span>
+                        case []interface{}:<span class="cov8" title="1">
+                                command := Command{Name: name}
+                                for _, step := range cmd </span><span class="cov8" title="1">{
+                                        if stepStr, ok := step.(string); ok </span><span class="cov8" title="1">{
+                                                command.Steps = append(command.Steps, stepStr)
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">config.Commands = append(config.Commands, command)</span>
+
+                        case map[string]interface{}:<span class="cov8" title="1">
+                                command := Command{Name: name}
+                                if cmdStr, ok := cmd["command"].(string); ok </span><span class="cov8" title="1">{
+                                        command.Command = cmdStr
+                                }</span>
+                                <span class="cov8" title="1">if args, ok := cmd["args"].([]interface{}); ok </span><span class="cov8" title="1">{
+                                        for _, arg := range args </span><span class="cov8" title="1">{
+                                                if argStr, ok := arg.(string); ok </span><span class="cov8" title="1">{
+                                                        command.Arguments = append(command.Arguments, argStr)
+                                                }</span>
+                                        }
+                                }
+                                <span class="cov8" title="1">if steps, ok := cmd["steps"].([]interface{}); ok </span><span class="cov0" title="0">{
+                                        for _, step := range steps </span><span class="cov0" title="0">{
+                                                if stepStr, ok := step.(string); ok </span><span class="cov0" title="0">{
+                                                        command.Steps = append(command.Steps, stepStr)
+                                                }</span>
+                                        }
+                                }
+
+                                <span class="cov8" title="1">if env, ok := cmd["environment"].(map[string]interface{}); ok </span><span class="cov8" title="1">{
+                                        command.Environment = make(map[string]string)
+                                        for key, value := range env </span><span class="cov8" title="1">{
+                                                if valueStr, ok := value.(string); ok </span><span class="cov8" title="1">{
+                                                        command.Environment[key] = valueStr
+                                                }</span>
+                                        }
+                                }
+
+                                <span class="cov8" title="1">if wd, ok := cmd["working_directory"].(string); ok </span><span class="cov8" title="1">{
+                                        command.WorkingDirectory = wd
+                                }</span>
+
+                                <span class="cov8" title="1">config.Commands = append(config.Commands, command)</span>
+                        }
+                }
+        }
+
+        <span class="cov8" title="1">if env, ok := data["environment"].(map[string]interface{}); ok </span><span class="cov0" title="0">{
+                for key, value := range env </span><span class="cov0" title="0">{
+                        if valueStr, ok := value.(string); ok </span><span class="cov0" title="0">{
+                                config.Environment[key] = valueStr
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">if wd, ok := data["working_directory"].(string); ok </span><span class="cov0" title="0">{
+                config.WorkingDirectory = wd
+        }</span>
+
+        <span class="cov8" title="1">return config</span>
+}
+
+func loadConfig(filename string) *Config <span class="cov8" title="1">{
+        configPath, err := findConfigFile(filename)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println("config file not found")
+                os.Exit(1)
+        }</span>
+
+        <span class="cov8" title="1">var data map[string]interface{}
+        if _, err := toml.DecodeFile(configPath, &amp;data); err != nil </span><span class="cov0" title="0">{
+                fmt.Println("failed to parse config file:", err)
+                os.Exit(1)
+        }</span>
+
+        <span class="cov8" title="1">return parseConfig(data)</span>
+}
+
+func findConfigFile(filename string) (string, error) <span class="cov8" title="1">{
+        dir, err := os.Getwd()
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">for </span><span class="cov8" title="1">{
+                configPath := filepath.Join(dir, filename)
+                if _, err := os.Stat(configPath); err == nil </span><span class="cov8" title="1">{
+                        return configPath, nil
+                }</span>
+
+                <span class="cov8" title="1">parentDir := filepath.Dir(dir)
+                if parentDir == dir </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">dir = parentDir</span>
+        }
+
+        <span class="cov8" title="1">return "", fmt.Errorf("config file not found")</span>
+}
+
+func splitCommand(cmd string) []string <span class="cov8" title="1">{
+        return re.FindAllString(cmd, -1)
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "flag"
+        "fmt"
+        "io"
+        "os"
+        "os/exec"
+)
+
+type options struct {
+        quiet      bool
+        logs       string
+        command    string
+        configFile string
+        writer     io.Writer
+}
+
+func main() <span class="cov0" title="0">{
+        opts := parseFlags()
+        opts.writer = os.Stdout
+
+        switch opts.command </span>{
+        case "list":<span class="cov0" title="0">
+                listCmd(opts)</span>
+        case "", "help":<span class="cov0" title="0">
+                helpCmd(opts)</span>
+        case "init":<span class="cov0" title="0">
+                initCmd(opts)</span>
+        default:<span class="cov0" title="0">
+                runCmd(opts)</span>
+        }
+}
+
+func parseFlags() *options <span class="cov8" title="1">{
+        var quiet bool
+        var configFile string
+        var logs string
+
+        flag.BoolVar(&amp;quiet, "q", false, "suppress output")
+        flag.BoolVar(&amp;quiet, "quiet", false, "suppress output")
+        flag.StringVar(&amp;logs, "logs", "", "write output to file")
+        flag.StringVar(&amp;configFile, "f", "gr.toml", "config file")
+        flag.StringVar(&amp;configFile, "file", "gr.toml", "config file")
+
+        flag.Parse()
+        cmd := flag.Arg(0)
+        opts := &amp;options{
+                quiet:      quiet,
+                logs:       logs,
+                command:    cmd,
+                configFile: configFile,
+        }
+        flag.Usage = func() </span><span class="cov0" title="0">{ helpCmd(opts) }</span>
+        <span class="cov8" title="1">return opts</span>
+}
+
+func helpCmd(opts *options) <span class="cov8" title="1">{
+        fmt.Fprintln(opts.writer, "Usage: gr [options] &lt;command&gt;")
+        fmt.Fprintln(opts.writer, "Commands:")
+        fmt.Fprintln(opts.writer, "  help  prints this message")
+        fmt.Fprintln(opts.writer, "  init  creates a new config file")
+        fmt.Fprintln(opts.writer, "  list  lists all available commans")
+        fmt.Fprintln(opts.writer, "\nOptions:")
+        fmt.Fprintln(opts.writer, "  -f, --file &lt;file&gt; specify the config file (default: gr.toml)")
+        fmt.Fprintln(opts.writer, "  --logs &lt;file&gt;     write output to file")
+        fmt.Fprintln(opts.writer, "  -q, --quiet       suppress output")
+}</span>
+
+func listCmd(opts *options) <span class="cov8" title="1">{
+        config := loadConfig(opts.configFile)
+
+        fmt.Fprintln(opts.writer, "Available commands:")
+
+        for _, task := range config.Commands </span><span class="cov8" title="1">{
+                fmt.Fprintf(opts.writer, " - %s\n", task.Name)
+        }</span>
+}
+
+func initCmd(opts *options) <span class="cov0" title="0">{
+        if _, err := os.Stat(opts.configFile); err == nil </span><span class="cov0" title="0">{
+                fmt.Println("Config file already exists")
+                return
+        }</span>
+
+        <span class="cov0" title="0">file, err := os.Create(opts.configFile)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println("Failed to create config file:", err)
+                return
+        }</span>
+        <span class="cov0" title="0">defer file.Close()
+
+        defaultConfig := `[commands]
+hello = "echo Hello, World!"`
+
+        file.WriteString(defaultConfig)</span>
+}
+
+func runCmd(opts *options) <span class="cov8" title="1">{
+        config := loadConfig(opts.configFile)
+
+        for _, task := range config.Commands </span><span class="cov8" title="1">{
+                if task.Name == opts.command </span><span class="cov8" title="1">{
+                        runTask(task, config, opts)
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">fmt.Fprintf(opts.writer, "Command %q not found\n", opts.command)</span>
+}
+
+func runTask(task Command, config *Config, opts *options) <span class="cov8" title="1">{
+        if task.Steps != nil </span><span class="cov8" title="1">{
+                for _, step := range task.Steps </span><span class="cov8" title="1">{
+                        o := &amp;options{
+                                command:    step,
+                                quiet:      opts.quiet,
+                                logs:       opts.logs,
+                                configFile: opts.configFile,
+                                writer:     opts.writer,
+                        }
+                        runCmd(o)
+                }</span>
+                <span class="cov8" title="1">return</span>
+        }
+
+        <span class="cov8" title="1">cmd := exec.Command(task.Command, task.Arguments...)
+        cmd.Env = append(os.Environ(), formatEnv(config.Environment)...)
+        cmd.Env = append(cmd.Env, formatEnv(task.Environment)...)
+        var outputWriter io.Writer
+
+        if config.WorkingDirectory != "" </span><span class="cov0" title="0">{
+                cmd.Dir = config.WorkingDirectory
+        }</span>
+
+        <span class="cov8" title="1">if task.WorkingDirectory != "" </span><span class="cov0" title="0">{
+                cmd.Dir = task.WorkingDirectory
+        }</span>
+
+        <span class="cov8" title="1">if opts.logs != "" </span><span class="cov0" title="0">{
+                file, err := os.OpenFile(opts.logs, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println("failed to open log file:", err)
+                        return
+                }</span>
+                <span class="cov0" title="0">defer file.Close()
+
+                if opts.quiet </span><span class="cov0" title="0">{
+                        outputWriter = file
+                }</span> else<span class="cov0" title="0"> {
+                        outputWriter = io.MultiWriter(file, opts.writer)
+                }</span>
+        } else<span class="cov8" title="1"> {
+                if opts.quiet </span><span class="cov8" title="1">{
+                        outputWriter = io.Discard
+                }</span> else<span class="cov8" title="1"> {
+                        outputWriter = opts.writer
+                }</span>
+        }
+
+        <span class="cov8" title="1">cmd.Stdout = outputWriter
+        cmd.Stderr = os.Stderr
+        cmd.Run()</span>
+}
+
+func formatEnv(env map[string]string) []string <span class="cov8" title="1">{
+        var formatted []string
+        for key, value := range env </span><span class="cov8" title="1">{
+                formatted = append(formatted, fmt.Sprintf("%s=%s", key, value))
+        }</span>
+        <span class="cov8" title="1">return formatted</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

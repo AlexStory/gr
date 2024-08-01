@@ -5,19 +5,7 @@ version = "0.1.0"
 [commands]
 hello = "echo 'Hello, world!'"
 goodbye = "echo 'Goodbye, world!'"
-list-cmds = "go run . list"
-build-win = "go build -o gr.exe ."
 combo = ["hello", "goodbye"]
-inf = ["inf"]
-
-[commands.all]
-command = "ls"
-working_directory = "./spoons"
-
-[commands.other]
-command = "echo"
-args = ["hello, $TARGET"]
-environment = { TARGET="world" }
-
-[commands.mombo]
-steps = ["hello", "goodbye"]
+build-cover = "go test -coverprofile=./out/coverage.out ./..."
+build-cover-html = "go tool cover -html=./out/coverage.out -o ./out/coverage.html"
+cover = ["build-cover", "build-cover-html"]
