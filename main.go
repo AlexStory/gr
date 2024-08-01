@@ -64,8 +64,10 @@ func helpCmd() {
 func listCmd(opts *options) {
 	config := loadConfig(opts.configFile)
 
+	fmt.Println("Available commands:")
+
 	for _, task := range config.Commands {
-		fmt.Println(task.Name)
+		fmt.Printf(" - %s\n", task.Name)
 	}
 }
 
