@@ -1,6 +1,4 @@
 # gr
-![Scrutinizer coverage (GitHub/Bitbucket)](https://img.shields.io/scrutinizer/coverage/g/alexstory/gr)
-
 
 gr is a task runner focused on simplicity and minimalism.
 
