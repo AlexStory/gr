@@ -2,4 +2,4 @@ module github.com/alexstory/gr
 
 go 1.22.0
 
-require github.com/BurntSushi/toml v1.4.0 // indirect
+require github.com/BurntSushi/toml v1.4.0
