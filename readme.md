@@ -76,6 +76,7 @@ The Cli takes the following form. `gr [options] <command>`, with the singular co
 - `gr help` Prints out the help text.
 - `gr list` Prints all of the available commands that you can run.
 - `gr init` Creates a new `gr.toml` file.
+- `gr version` Prints the current version of `gr`
 - `gr <command>` Runs the command specified in the config file.
 
 ### Options
