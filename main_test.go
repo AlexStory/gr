@@ -111,9 +111,10 @@ func TestHelpCmd(t *testing.T) {
 	got := buffer.String()
 	want := `Usage: gr [options] <command>
 Commands:
-  help  prints this message
-  init  creates a new config file
-  list  lists all available commans
+  help     prints this message
+  init     creates a new config file
+  list     lists all available commans
+  version  prints the version
 
 Options:
   -f, --file <file> specify the config file (default: gr.toml)

@@ -62,9 +62,10 @@ func parseFlags() *options {
 func helpCmd(opts *options) {
 	fmt.Fprintln(opts.writer, "Usage: gr [options] <command>")
 	fmt.Fprintln(opts.writer, "Commands:")
-	fmt.Fprintln(opts.writer, "  help  prints this message")
-	fmt.Fprintln(opts.writer, "  init  creates a new config file")
-	fmt.Fprintln(opts.writer, "  list  lists all available commans")
+	fmt.Fprintln(opts.writer, "  help     prints this message")
+	fmt.Fprintln(opts.writer, "  init     creates a new config file")
+	fmt.Fprintln(opts.writer, "  list     lists all available commans")
+	fmt.Fprintln(opts.writer, "  version  prints the version")
 	fmt.Fprintln(opts.writer, "\nOptions:")
 	fmt.Fprintln(opts.writer, "  -f, --file <file> specify the config file (default: gr.toml)")
 	fmt.Fprintln(opts.writer, "  --logs <file>     write output to file")
