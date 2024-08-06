@@ -182,3 +182,19 @@ func TestRunCmd(t *testing.T) {
 		})
 	}
 }
+
+func TestVersionCmd(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	opts := &options{
+		writer: buffer,
+	}
+
+	versionCmd(opts)
+
+	got := buffer.String()
+	want := version
+
+	if got != want {
+		t.Errorf("versionCmd() = %q, want %q", got, want)
+	}
+}

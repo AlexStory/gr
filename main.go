@@ -8,6 +8,8 @@ import (
 	"os/exec"
 )
 
+const version = "0.1.1"
+
 type options struct {
 	quiet      bool
 	logs       string
@@ -27,6 +29,8 @@ func main() {
 		helpCmd(opts)
 	case "init":
 		initCmd(opts)
+	case "version":
+		versionCmd(opts)
 	default:
 		runCmd(opts)
 	}
@@ -94,6 +98,10 @@ func initCmd(opts *options) {
 hello = "echo Hello, World!"`
 
 	file.WriteString(defaultConfig)
+}
+
+func versionCmd(opts *options) {
+	fmt.Fprint(opts.writer, version)
 }
 
 func runCmd(opts *options) {
