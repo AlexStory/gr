@@ -64,7 +64,7 @@ func helpCmd(opts *options) {
 	fmt.Fprintln(opts.writer, "Commands:")
 	fmt.Fprintln(opts.writer, "  help     prints this message")
 	fmt.Fprintln(opts.writer, "  init     creates a new config file")
-	fmt.Fprintln(opts.writer, "  list     lists all available commans")
+	fmt.Fprintln(opts.writer, "  list     lists all available commands")
 	fmt.Fprintln(opts.writer, "  version  prints the version")
 	fmt.Fprintln(opts.writer, "\nOptions:")
 	fmt.Fprintln(opts.writer, "  -f, --file <file> specify the config file (default: gr.toml)")
@@ -102,7 +102,7 @@ hello = "echo Hello, World!"`
 }
 
 func versionCmd(opts *options) {
-	fmt.Fprint(opts.writer, version)
+	fmt.Fprintln(opts.writer, version)
 }
 
 func runCmd(opts *options) {
